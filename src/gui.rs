@@ -701,7 +701,10 @@ impl App {
     }
 
     fn big_button(&mut self, ui: &mut egui::Ui) {
-        let size = 210.0;
+        // Smaller once a song is shown, so the song is on screen without scrolling.
+        let compact = !self.busy() && self.shown.is_some() && self.problem.is_none();
+        let scale = if compact { 0.62 } else { 1.0 };
+        let size = 210.0 * scale;
         let (rect, response) = ui.allocate_exact_size(egui::vec2(size, size), egui::Sense::click());
         let painter = ui.painter_at(rect.expand(30.0));
         let centre = rect.center();
@@ -737,20 +740,20 @@ impl App {
         }
         let hovered = response.hovered();
         let fill = if hovered { ACCENT_BRIGHT } else { ACCENT };
-        painter.circle_filled(centre, 66.0, fill);
+        painter.circle_filled(centre, 66.0 * scale, fill);
         // The mark of listening: a few bars, moving with the sound while it is heard.
         let bars = 5;
         for i in 0..bars {
-            let x = centre.x + (i as f32 - 2.0) * 14.0;
+            let x = centre.x + (i as f32 - 2.0) * 14.0 * scale;
             let wave = if busy {
                 let l = self.progress.level.sqrt().max(0.15);
                 (0.35 + 0.65 * ((t * 7.0 + i as f32 * 1.3).sin() * 0.5 + 0.5)) * l
             } else {
                 [0.45, 0.75, 1.0, 0.75, 0.45][i]
             };
-            let h = 12.0 + 34.0 * wave;
+            let h = (12.0 + 34.0 * wave) * scale;
             painter.rect_filled(
-                egui::Rect::from_center_size(egui::pos2(x, centre.y), egui::vec2(8.0, h)),
+                egui::Rect::from_center_size(egui::pos2(x, centre.y), egui::vec2(8.0 * scale, h)),
                 egui::CornerRadius::same(4),
                 ON_ACCENT,
             );
