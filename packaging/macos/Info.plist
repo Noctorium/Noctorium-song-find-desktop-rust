@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Noctorium Song Find</string>
+	<key>CFBundleName</key>
+	<string>Noctorium Song Find</string>
+	<key>CFBundleExecutable</key>
+	<string>noctorium-song-find</string>
+	<key>CFBundleIconFile</key>
+	<string>noctorium-song-find</string>
+	<key>CFBundleIdentifier</key>
+	<string>app.noctorium.songfind</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@SHORT_VERSION@</string>
+	<key>CFBundleVersion</key>
+	<string>@SHORT_VERSION@</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Noctorium Song Find @VERSION@</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.music</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>@MINIMUM_SYSTEM@</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Noctorium Song Find listens through the microphone to find out which song is playing.</string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Noctorium Song Find listens to what this Mac is playing to find out which song it is.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Noctorium. Licensed under the GNU GPL, version 3.</string>
+</dict>
+</plist>

@@ -1,0 +1,57 @@
+name: CI
+
+# Built, tested and packaged on each of the three systems it is released for, the way the release builds it:
+# MSVC on Windows, glibc on Linux, Apple silicon on a Mac. The release itself is built from Noctorium-Installer's
+# release.yml, with packaging/package.sh; this is what keeps that script working between releases.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows-x64
+          - os: ubuntu-latest
+            platform: linux-x64
+          - os: macos-latest
+            platform: macos-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+
+      # The window is drawn with OpenGL through X11 or Wayland, and the microphone is read through ALSA;
+      # Windows and macOS have their own in the SDK.
+      - name: Libraries the window is built against
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libxkbcommon-dev libwayland-dev libgl1-mesa-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev desktop-file-utils
+
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=$(packaging/package.sh 0.0.0-ci ${{ matrix.platform }})
+          case "$out" in
+            *.tar.gz) tar -tzvf "$out" ;;
+            *) if command -v unzip > /dev/null; then unzip -l "$out"; else 7z l "$out"; fi ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: noctorium-song-find-${{ matrix.platform }}
+          path: dist/*
+          retention-days: 14

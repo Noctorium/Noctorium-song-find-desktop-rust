@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Noctorium Song Find
+GenericName=Song recognition
+Comment=Find out which song is playing, from the microphone or the computer's own sound
+Exec=noctorium-song-find
+Icon=noctorium-song-find
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=music;song;recognition;identify;shazam;lyrics;noctorium;
+StartupWMClass=noctorium-song-find

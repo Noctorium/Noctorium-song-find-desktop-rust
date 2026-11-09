@@ -1,0 +1,58 @@
+[package]
+name = "noctorium-song-find"
+version = "0.27.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Noctorium Song Find: which song is playing, from the microphone or from the computer's own sound"
+license = "GPL-3.0-only"
+repository = "https://github.com/Noctorium/Noctorium-song-find-desktop-rust"
+publish = false
+default-run = "noctorium-song-find"
+
+[lib]
+name = "noctorium_song_find"
+path = "src/lib.rs"
+
+[[bin]]
+name = "noctorium-song-find"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.32.3", default-features = false, features = ["accesskit", "default_fonts", "glow", "x11", "wayland"] }
+egui_extras = { version = "0.32.3", features = ["http", "image"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+ureq = { version = "2", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+dirs = "6"
+ttf-parser = "0.25"
+cpal = "0.18"
+rustfft = "6"
+crc32fast = "1"
+base64 = "0.22"
+uuid = { version = "1", features = ["v4"] }
+rand = "0.9"
+hmac = "0.12"
+sha1 = "0.10"
+sha2 = "0.10"
+rusty-chromaprint = "0.3"
+symphonia = { version = "0.5", default-features = false, features = ["mp3", "flac", "ogg", "vorbis", "wav", "pcm", "aac", "isomp4", "alac"] }
+zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+# The computer's own sound on Linux is the monitor of the default output, which only PulseAudio (or
+# PipeWire's PulseAudio server) offers; cpal speaks its protocol itself, with no libpulse to link.
+[target.'cfg(target_os = "linux")'.dependencies]
+cpal = { version = "0.18", features = ["pulseaudio"] }
+
+[target."cfg(windows)".dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_UI_WindowsAndMessaging"] }
+
+[build-dependencies]
+png = "0.18.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

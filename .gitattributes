@@ -1,0 +1,5 @@
+# LF everywhere, Windows checkouts included: the packaging script runs in bash on the Windows runner, and
+# bash reads a carriage return as part of the command.
+* text=auto eol=lf
+*.png binary
+*.ico binary
