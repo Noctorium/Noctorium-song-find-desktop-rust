@@ -1,6 +1,6 @@
 [package]
 name = "noctorium-song-find"
-version = "0.27.0"
+version = "0.28.0"
 edition = "2021"
 rust-version = "1.88"
 description = "Noctorium Song Find: which song is playing, from the microphone or from the computer's own sound"
