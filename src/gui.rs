@@ -7,6 +7,7 @@
 pub mod theme;
 
 use crate::audio::{self, Progress};
+use crate::notify::{self, Note};
 use crate::providers::{self, Answer, Clip, Provider};
 use crate::settings::{self, Found, Places, Settings, Source};
 use crate::song::{self, Song};
@@ -18,7 +19,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use theme::*;
 
-const MARK: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/mark.rgba"));
+pub(crate) const MARK: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/mark.rgba"));
 include!(concat!(env!("OUT_DIR"), "/mark.rs"));
 
 pub const TITLE: &str = "Noctorium Song Find";
@@ -196,6 +197,7 @@ impl App {
         self.settings.source = source;
         self.activity = Activity::Listening(source);
         self.answers.clear();
+        self.shown = None;
         self.problem = None;
         self.progress = Progress::default();
         self.stop = Arc::new(AtomicBool::new(false));
@@ -226,6 +228,7 @@ impl App {
 
     fn identify_file(&mut self, path: std::path::PathBuf) {
         if self.busy() {
+            self.toast("Still finding the last one. Drop the file again once it is done.");
             return;
         }
         let name = path
@@ -235,7 +238,9 @@ impl App {
         self.page = Page::Listen;
         self.activity = Activity::Reading(name.clone());
         self.answers.clear();
+        self.shown = None;
         self.problem = None;
+        self.progress = Progress::default();
         let settings = self.settings.clone();
         let ctx = self.ctx.clone();
         self.spawn(move |tx| match audio::decode_file(&path) {
@@ -259,6 +264,7 @@ impl App {
                         Err(why) => self.problem = Some(why),
                         Ok(answers) => self.finish(answers, source),
                     }
+                    self.tell_done();
                 }
                 Event::Newer(newer) => {
                     self.newer = newer;
@@ -333,8 +339,48 @@ impl App {
                 );
             }
             self.history.truncate(settings::HISTORY_MOST);
+            // What was open in History was found by its place in the list, and every place just moved.
+            self.open_entry = None;
             self.save_history();
         }
+    }
+
+    /// When the window is behind another, or minimised, says how the search went: a notification, and the
+    /// taskbar asking to be looked at.
+    fn tell_done(&mut self) {
+        let focused = self.ctx.input(|i| i.viewport().focused).unwrap_or(true);
+        let minimised = self.ctx.input(|i| i.viewport().minimized).unwrap_or(false);
+        if (focused && !minimised) || !self.settings.notify_when_done || self.capture.is_some() {
+            return;
+        }
+        let note = match (&self.shown, &self.problem) {
+            (Some(song), None) => Note {
+                title: song.title.clone(),
+                body: format!("{} · found by {}", song.artist, song.provider),
+                cover: song.cover.clone(),
+            },
+            (_, why) => Note {
+                title: "No song found".into(),
+                body: why
+                    .clone()
+                    .unwrap_or_else(|| "Nobody knew it. Try again closer to the sound.".into())
+                    .lines()
+                    .next()
+                    .unwrap_or_default()
+                    .to_string(),
+                cover: None,
+            },
+        };
+        let ctx = self.ctx.clone();
+        notify::tell(&self.places, note, move || {
+            ctx.send_viewport_cmd(egui::ViewportCommand::Minimized(false));
+            ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
+            ctx.request_repaint();
+        });
+        self.ctx
+            .send_viewport_cmd(egui::ViewportCommand::RequestUserAttention(
+                egui::UserAttentionType::Informational,
+            ));
     }
 
     fn save_history(&mut self) {
@@ -395,7 +441,7 @@ impl eframe::App for App {
         }
         if self.page == Page::Listen
             && !ctx.wants_keyboard_input()
-            && ctx.input(|i| i.key_pressed(egui::Key::Space))
+            && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Space))
         {
             if self.busy() {
                 self.stop.store(true, Ordering::Relaxed);
@@ -1046,6 +1092,11 @@ impl App {
                     });
                 }
             });
+            ui.add_space(6.0);
+            ui.checkbox(
+                &mut self.settings.notify_when_done,
+                "Tell me when the song is found, if I'm in another window",
+            );
             ui.add_space(6.0);
             ui.label(
                 RichText::new(if cfg!(windows) {

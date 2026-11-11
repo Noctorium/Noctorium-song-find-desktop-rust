@@ -60,6 +60,8 @@ pub struct Settings {
     /// A microphone of the listener's choosing, by name; None for the system's default.
     pub microphone: Option<String>,
     pub keep_history: bool,
+    /// A notification when a search ends while the window is behind another.
+    pub notify_when_done: bool,
     pub audd_token: String,
     pub acrcloud_host: String,
     pub acrcloud_key: String,
@@ -79,6 +81,7 @@ impl Default for Settings {
             ask_everyone: false,
             microphone: None,
             keep_history: true,
+            notify_when_done: true,
             audd_token: String::new(),
             acrcloud_host: String::new(),
             acrcloud_key: String::new(),

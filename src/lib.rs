@@ -7,6 +7,7 @@
 
 pub mod audio;
 pub mod gui;
+pub mod notify;
 pub mod providers;
 pub mod settings;
 pub mod signature;

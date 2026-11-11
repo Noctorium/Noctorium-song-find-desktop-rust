@@ -47,7 +47,13 @@ flate2 = { version = "1", default-features = false, features = ["rust_backend"] 
 cpal = { version = "0.18", features = ["pulseaudio"] }
 
 [target."cfg(windows)".dependencies]
-windows-sys = { version = "0.61.2", features = ["Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61.2", features = ["Win32_UI_WindowsAndMessaging", "Win32_System_Registry"] }
+# "Found it" when the window is behind another: a Windows toast, straight through WinRT, no helper process.
+tauri-winrt-notification = "0.8"
+
+# The same, through the desktop's notification service (D-Bus on Linux, Notification Center on a Mac).
+[target.'cfg(not(windows))'.dependencies]
+notify-rust = "4"
 
 [build-dependencies]
 png = "0.18.1"
