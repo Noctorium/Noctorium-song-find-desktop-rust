@@ -74,7 +74,7 @@ On Windows, build from PowerShell or a developer prompt with MSVC.
 ```bash
 cargo test
 cargo run
-packaging/package.sh 0.28.0 windows-x64     # or linux-x64, macos-arm64, macos-x64: what a release ships
+packaging/package.sh 0.29.0 windows-x64     # or linux-x64, macos-arm64, macos-x64: what a release ships
 ```
 
 `NOCTORIUM_SONG_FIND_CAPTURE=<folder>` draws each page, saves it as a PNG there and closes.
