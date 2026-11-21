@@ -1271,7 +1271,7 @@ impl App {
             );
             ui.horizontal(|ui| {
                 link(ui, "Source", "https://github.com/Noctorium/Noctorium-song-find-desktop-rust");
-                link(ui, "Website", "https://noctorium.vercel.app");
+                link(ui, "Website", "https://noctorium.xyz");
             });
         });
     }
